@@ -11,7 +11,7 @@
 
 <meta name="author" content="El Tali" />
 
-<meta name="date" content="2024-08-27" />
+<meta name="date" content="2024-08-28" />
 
 <title>Prácticas de aula 2 (PA02). Inferencia estadística a partir de dos muestras independientes usando datos biométricos Biogeografía (GEO-131) Universidad Autónoma de Santo Domingo (UASD) Semestre 2024-02</title>
 
@@ -427,7 +427,7 @@ display: none;
 
 <h1 class="title toc-ignore">Prácticas de aula 2 (PA02). Inferencia estadística a partir de dos muestras independientes usando datos biométricos<small><br>Biogeografía (GEO-131)<br>Universidad Autónoma de Santo Domingo (UASD)<br>Semestre 2024-02</small></h1>
 <h4 class="author">El Tali</h4>
-<h4 class="date">2024-08-27</h4>
+<h4 class="date">2024-08-28</h4>
 
 </div>
 
@@ -981,11 +981,11 @@ df = n - 1 = 5 - 1 = 4
 <ol start="6">
 <li><strong>Determinación del valor crítico:</strong></li>
 </ol>
-<p>Para un nivel de significancia de 0.05 y 4 grados de libertad, el valor crítico de t en una prueba de dos colas es aproximadamente 2.776 (lo puedes obtener en R con el código <code>qt(p = 0.975, df = 4)</code>, pero también lo puedes buscar en tablas estadísticas).</p>
+<p>Para un nivel de significancia <span class="math inline">\(\alpha\)</span> de 0.05 y 4 grados de libertad, el valor crítico de <span class="math inline">\(t\)</span> en una prueba de dos colas es aproximadamente ±2.776 (lo puedes obtener en R con el código <code>qt(p = 0.025, df = 4)</code> y <code>qt(p = 0.975, df = 4)</code>, pero también lo puedes buscar en tablas estadísticas). Esto significa que si el valor del estadístico de prueba obtenido es mayor que +2.776, o menor que -2.776, podemos rechazar la hipótesis nula de igualdad de medias. En caso contrario, no podemos rechazar la hipótesis nula de igual de medias. Si lo hiciéramos a través del valor <span class="math inline">\(P\)</span>, rechazaríamos la hipótesis nula si el valor <span class="math inline">\(P\)</span> fuese menor que <span class="math inline">\(\alpha\)</span> (que en nuestro caso, elegimos 0.05), y no rechazaríamos la hipótesis nula si el valor <span class="math inline">\(P\)</span> fuese mayor que <span class="math inline">\(\alpha\)</span>.</p>
 <ol start="7">
 <li><strong>Conclusión:</strong></li>
 </ol>
-<p>Dado que el valor calculado de t (6.50) es mayor que el valor crítico de t (2.776), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de los dos estudiantes en este ejemplo.</p>
+<p>Dado que el valor calculado de <span class="math inline">\(t\)</span> (+6.50) es mayor que el valor crítico de <span class="math inline">\(t\)</span> por la derecha (+2.776), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de los dos estudiantes en este ejemplo.</p>
 </div>
 <div id="cómo-se-haría-en-r" class="section level3">
 <h3>¿Cómo se haría en R?</h3>
@@ -1529,16 +1529,16 @@ df = n_1 + n_2 - 2
 df = 3 + 3 - 2 = 6 - 2 = 4
 \]</span></p>
 <p>Por lo tanto, sin la corrección de Welch, los grados de libertad serían 4, y puedes usar este valor para simplificar tu ejercicio.</p>
-<p>No obstante, en esta demostración, seguiremos adelante con los grados de libertad caclulados por medio de la corrección de Welch, es decir, usáremos 3 grados de libertad.</p>
+<p>No obstante, en esta demostración, seguiremos adelante con los grados de libertad calculados por medio de la corrección de Welch, es decir, usáremos 3 grados de libertad.</p>
 <ol start="5">
 <li><strong>Determinación del valor crítico:</strong></li>
 </ol>
-<p>Para un nivel de significancia de 0.05 y 3 grados de libertad, el valor crítico de t en una prueba de dos colas es aproximadamente 3.182.</p>
+<p>Para un nivel de significancia <span class="math inline">\(\alpha\)</span> de 0.05 y 3 grados de libertad, el valor crítico de <span class="math inline">\(t\)</span> en una prueba de dos colas es aproximadamente ±3.182. Esto significa que si el valor del estadístico de prueba obtenido es mayor que +3.182 o menor que -3.182, podemos rechazar la hipótesis nula de igualdad de medias. En caso contrario, no podemos rechazar la hipótesis nula de igual de medias. Si lo hiciéramos a través del valor <span class="math inline">\(P\)</span>, rechazaríamos la hipótesis nula si el valor <span class="math inline">\(P\)</span> fuese menor que <span class="math inline">\(\alpha\)</span> (que en nuestro caso, elegimos 0.05), y no rechazaríamos la hipótesis nula si el valor <span class="math inline">\(P\)</span> fuese mayor que <span class="math inline">\(\alpha\)</span>.</p>
 <ol start="6">
 <li><strong>Conclusión:</strong></li>
 </ol>
-<p>Dado que el valor calculado de t (4.45) es mayor que el valor crítico de t (3.182), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de hombres y mujeres en este ejemplo.</p>
-<p>Este cálculo demuestra que, a pesar del tamaño de muestra pequeño, se detectó una diferencia significativa entre las dos muestras en este caso particular. Sin embargo, con tamaños de muestra tan pequeños, los resultados deben interpretarse con cautela, ya que el poder estadístico es limitado.</p>
+<p>Dado que el valor calculado de t (4.45) es mayor que el valor crítico de t por la derecha (+3.182), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de hombres y mujeres en este ejemplo.</p>
+<p>Este cálculo demuestra que, a pesar del tamaño de muestra pequeño, se detectó una diferencia significativa entre las dos muestras en este caso particular. Sin embargo, con tamaños de muestra tan pequeños, y sin haber realizado verificación de supuestos, los resultados deben interpretarse con cautela, ya que el poder estadístico es limitado.</p>
 </div>
 <div id="cómo-se-haría-en-r-1" class="section level3">
 <h3>¿Cómo se haría en R?</h3>
@@ -1548,6 +1548,7 @@ mujeres_medidas &lt;- c(6.8, 6.7, 6.9)
 
 # Aplicar la prueba t para muestras independientes
 t.test(hombres_medidas, mujeres_medidas, paired = FALSE)</code></pre>
+<p>La decisión se podría tomar mediante el valor de P. Si este es menor que el nivel de significancia, entonces se rechaza la hipótesis nula.</p>
 </div>
 </div>
 <div id="referencias" class="section level2">

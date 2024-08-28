@@ -182,11 +182,11 @@ $$
 
 6. **Determinación del valor crítico:**
 
-Para un nivel de significancia de 0.05 y 4 grados de libertad, el valor crítico de t en una prueba de dos colas es aproximadamente 2.776 (lo puedes obtener en R con el código `qt(p = 0.975, df = 4)`, pero también lo puedes buscar en tablas estadísticas).
+Para un nivel de significancia $\alpha$ de 0.05 y 4 grados de libertad, el valor crítico de $t$ en una prueba de dos colas es aproximadamente ±2.776 (lo puedes obtener en R con el código `qt(p = 0.025, df = 4)` y `qt(p = 0.975, df = 4)`, pero también lo puedes buscar en tablas estadísticas). Esto significa que si el valor del estadístico de prueba obtenido es mayor que +2.776, o menor que -2.776, podemos rechazar la hipótesis nula de igualdad de medias. En caso contrario, no podemos rechazar la hipótesis nula de igual de medias. Si lo hiciéramos a través del valor $P$, rechazaríamos la hipótesis nula si el valor $P$ fuese menor que $\alpha$ (que en nuestro caso, elegimos 0.05), y no rechazaríamos la hipótesis nula si el valor $P$ fuese mayor que $\alpha$.
 
 7. **Conclusión:**
 
-Dado que el valor calculado de t (6.50) es mayor que el valor crítico de t (2.776), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de los dos estudiantes en este ejemplo.
+Dado que el valor calculado de $t$ (+6.50) es mayor que el valor crítico de $t$ por la derecha (+2.776), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de los dos estudiantes en este ejemplo.
 
 
 ### ¿Cómo se haría en R?
@@ -372,17 +372,17 @@ $$
 
 Por lo tanto, sin la corrección de Welch, los grados de libertad serían 4, y puedes usar este valor para simplificar tu ejercicio.
 
-No obstante, en esta demostración, seguiremos adelante con los grados de libertad caclulados por medio de la corrección de Welch, es decir, usáremos 3 grados de libertad.
+No obstante, en esta demostración, seguiremos adelante con los grados de libertad calculados por medio de la corrección de Welch, es decir, usáremos 3 grados de libertad.
 
 5. **Determinación del valor crítico:**
 
-Para un nivel de significancia de 0.05 y 3 grados de libertad, el valor crítico de t en una prueba de dos colas es aproximadamente 3.182.
+Para un nivel de significancia $\alpha$ de 0.05 y 3 grados de libertad, el valor crítico de $t$ en una prueba de dos colas es aproximadamente ±3.182. Esto significa que si el valor del estadístico de prueba obtenido es mayor que +3.182 o menor que -3.182, podemos rechazar la hipótesis nula de igualdad de medias. En caso contrario, no podemos rechazar la hipótesis nula de igual de medias. Si lo hiciéramos a través del valor $P$, rechazaríamos la hipótesis nula si el valor $P$ fuese menor que $\alpha$ (que en nuestro caso, elegimos 0.05), y no rechazaríamos la hipótesis nula si el valor $P$ fuese mayor que $\alpha$.
 
 6. **Conclusión:**
 
-Dado que el valor calculado de t (4.45) es mayor que el valor crítico de t (3.182), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de hombres y mujeres en este ejemplo.
+Dado que el valor calculado de t (4.45) es mayor que el valor crítico de t por la derecha (+3.182), podemos rechazar la hipótesis nula. Esto significa que hay una diferencia significativa entre las medidas de los dedos de hombres y mujeres en este ejemplo.
 
-Este cálculo demuestra que, a pesar del tamaño de muestra pequeño, se detectó una diferencia significativa entre las dos muestras en este caso particular. Sin embargo, con tamaños de muestra tan pequeños, los resultados deben interpretarse con cautela, ya que el poder estadístico es limitado.
+Este cálculo demuestra que, a pesar del tamaño de muestra pequeño, se detectó una diferencia significativa entre las dos muestras en este caso particular. Sin embargo, con tamaños de muestra tan pequeños, y sin haber realizado verificación de supuestos, los resultados deben interpretarse con cautela, ya que el poder estadístico es limitado.
 
 ### ¿Cómo se haría en R?
 
@@ -394,6 +394,9 @@ mujeres_medidas <- c(6.8, 6.7, 6.9)
 # Aplicar la prueba t para muestras independientes
 t.test(hombres_medidas, mujeres_medidas, paired = FALSE)
 ```
+
+La decisión se podría tomar mediante el valor de P. Si este es menor que el nivel de significancia, entonces se rechaza la hipótesis nula.
+
 
 ## Referencias
 
