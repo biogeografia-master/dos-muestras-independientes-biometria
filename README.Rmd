@@ -1,5 +1,5 @@
 ---
-title: "Prácticas de aula 2 (PA02). Inferencia estadística a partir de dos muestras independientes usando datos biométricos<small><br>Biogeografía (GEO-131)<br>Universidad Autónoma de Santo Domingo (UASD)<br>Semestre 2025-01</small>"
+title: "Prácticas de aula 2 (PA02). Inferencia estadística a partir de dos muestras independientes usando datos biométricos<small><br>Biogeografía (GEO-131)<br>Universidad Autónoma de Santo Domingo (UASD)</small>"
 author: "El Tali"
 date: "`r format(Sys.Date(), '%Y-%m-%d')`"
 output:
@@ -19,7 +19,13 @@ always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, out.width = '100%', fig.retina = 4)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  out.width = '100%',
+  fig.retina = 4,
+  cache = FALSE)
 ```
 
 ```{r, include=F}
@@ -41,7 +47,7 @@ if (grepl('gfm', output_format)) {
 
 # Fecha/hora de entrega
 
-**11 de febrero de 2025, 7:59 pm.**
+**Ver portal de la asignatura**
 
 # Justificación
 
@@ -49,7 +55,7 @@ Aprender a aplicar pruebas estadísticas en biogeografía es crucial porque perm
 
 Con el advenimiento del machine learning, deep learning e inteligencia artificial, la biogeografía ha experimentado avances significativos, permitiendo la construcción de modelos predictivos más precisos, la automatización del análisis de grandes volúmenes de datos espaciales, y la identificación de patrones complejos en la distribución de especies. Sin embargo, la estadística sigue siendo fundamental para validar estos modelos, interpretar resultados de manera rigurosa y garantizar la reproducibilidad científica, sobre todo cuando lo que tenemos a mano son muestras pequeñas, algo que en biología es muy común, sobre todo en estudios de campo. Mientras que la IA ofrece nuevas herramientas poderosas, las pruebas estadísticas siguen siendo esenciales para fundamentar hipótesis, comparar estudios y proporcionar un marco de referencia sólido en la investigación biogeográfica. Ya no hablemos de la modelización en presencia de mediciones repetidas, donde no se satisfacen varios de los supuestos de las técnicas tradicionales, relevando el papel de técnicas de modelización robustas muy usadas en ecología (e.g. modelos de efecto mixto). Como digo, la muestra pequeña sigue siendo predominante en ecología y biogeografía, y la estadística ha demostrado ser muy robusta en estos casos.
 
-# Ejercicio 1: Comparación de las Medidas de los dedos entre dos Estudiantes
+# Ejercicio 1: Comparación de las medidas de los dedos entre dos estudiantes usando la prueba t de Student para muestras emparejadas
 
 ## Objetivo
 
@@ -61,13 +67,26 @@ Es importante que, cuando termines esta práctica, estudies sobre los procedimie
 
 ## Planteamiento del Problema
 
-Se cuenta con las medidas de los cinco dedos de una mano de varios estudiantes, registradas en un formulario que se almacena en una hoja de cálculo (archivo `biometria-basica.csv`). Se han creado 30 conjuntos de datos al azar, donde se señalan "Muestra_1" y "Muestra_2". Debes elegir uno de los 30 conjuntos, asegurándote de no duplicar con otro/a compañero/a.
+Se cuenta con las medidas de los cinco dedos de una mano de varios estudiantes, cuyos nombres reales han sido anonimizados mediante pseudónimos, para lo cual se usó el paquete `charlatan` (no 'toy relajando, ke conste, puedes verlo en un código oculto dentro de la versión RMarkdown de este archivo `README.Rmd`). Las medidas se registraron en un formulario que almacenaba los datos en una hoja de cálculo (archivo `biometria-basica.csv`). Para los fines de este ejercicio, se crearon 30 conjuntos de datos al azar, donde se señalan "Muestra_1" y "Muestra_2". Debes elegir uno de los 30 conjuntos, asegurándote de no duplicar con otro/a compañero/a.
+
+```{r, echo=F, eval=F}
+## Sólo para fines de registro/archivo
+# Generación de pseudónimos para datos de biometría básica de semestres anteriores 
+library(charlatan)
+set.seed(20250909)
+
+# 37 nombres en español (México, porque no hay locale es_DO)
+n <- 37
+pseudonimos <- ch_name(n, locale = "es_MX")
+pseudonimos
+```
+
 
 Para las dos muestras de tu conjunto, compararás las medidas de los cinco dedos, de forma pareada. En este caso, "pareada" significa, que harás una comparación considerando el dedo medido, es decir, pulgar-a-pulgar, índice-a-índice, y así. La comparación se realiza utilizando la prueba t de Student pareada para determinar si hay diferencias significativas entre las medidas de los dedos de dos estudiantes (o muestras, en este caso, "Muestra_1" y "Muestra_2").
 
 ## Recolección de Datos
 
-1. **Creación de los conjuntos**: Se han creado conjuntos de pares de estudiantes al azar utilizando sus nombres o pseudónimos con el siguiente código de R (en la versión HTML de este cuaderno, si no ves el código, presiona el botón `Show`). Cada conjunto se compone de dos muestras, "Muestra_1" y "Muestra_2", que representan las medidas de los dedos de dos estudiantes diferentes.
+1. **Creación de los conjuntos**: Se han creado conjuntos de pares de estudiantes al azar utilizando pseudónimos con el siguiente código de R (en la versión HTML de este cuaderno, si no ves el código, presiona el botón `Show`). Cada conjunto se compone de dos muestras, "Muestra_1" y "Muestra_2", que representan las medidas de los dedos de dos estudiantes diferentes.
 
 
 ```{r}
@@ -78,11 +97,9 @@ data <- read.csv("biometria-basica.csv", check.names = F)
 data <- data[!sapply(1:nrow(data), function(x) any(is.na(unlist(data[x, 4:8, drop=T])))), ]
 # Cambiar nombres de columnas
 colnames(data) <- gsub("\\..*|\\(.*", "", colnames(data))
-# Quitar espacios a nombres
-data$Nombre <- trimws(data$Nombre)
 
 # Combinaciones
-combinaciones <- t(combn(trimws(data[, grep('^Nombre', colnames(data))]), 2))
+combinaciones <- t(combn(trimws(data[, grep('^pseudonimo', colnames(data))]), 2))
 set.seed(999) # Fijar la semilla para reproducibilidad
 seleccion <- combinaciones[
   sample(1:nrow(combinaciones),
@@ -101,14 +118,14 @@ knitr::kable(conjuntos_par)
 ```
 
 
-2. **Obtención de las medidas de los dedos**: Las medidas de los cinco dedos de la mano de cada estudiante están registradas en la hoja de cálculo proporcionada, la cual transcribo abajo. También encuentra en este mismo repo (archivo `biometria-basica.csv`) y en [esta ruta de Google Spreadsheets](https://docs.google.com/spreadsheets/d/1XsLfqS-xOAMjutK6zgQB9inw6G2VhWt2bNmaaC3eBrA/edit?usp=sharing).
+2. **Obtención de las medidas de los dedos**: Las medidas de los cinco dedos de la mano de cada estudiante están registradas en la hoja de cálculo proporcionada, la cual transcribo abajo. También encuentra en este mismo repo (archivo `biometria-basica.csv`).
 
 ```{r}
 # Mostrar la tabla generada
 knitr::kable(data)
 ```
 
-3. **Mandato**. __Elige un conjunto e, IMPORTANTE MUY IMPORTANTE, anúncialo en el foro. Si alguien más lo elige antes que tú, deberás cambiarlo__. Aplica la prueba t de Student para muestras pareadas de un conjunto elegido por ti, comparando las medidas de los dedos de un estudiante (Muestra 1) con las medidas de los dedos de otro estudiante (Muestra 2) para determinar si hay diferencias significativas entre las medidas de los dedos de dos personas diferentes; usa un nivel de significancia de 0.05. Interpreta y/o resume los resultados con un pequeño párrafo que explique si las diferencias encontradas son estadísticamente significativas y qué implicaciones podrían tener en el contexto del estudio. **Importante**. Considera mirar, como referencia, la matriz de distancias/mapa de calor de la práctica anterior [(PA01. Generación de la matriz de distancias)](https://biogeografia-master.github.io/matriz-de-distancias/README.html); si encuentras la combinación que te tocó, pues úsala, de lo contrario, pues simplemente no compares con dicho ejercicio. No existe una ley estricta que sugiera un patrón común entre la matriz de distancia y el resultado de la prueba, pero normalmente sí hay consistencia entre ambas técnicas. Mira el ejemplo a continuación para guiarte sobre cómo proceder.
+3. **Mandato**. __Elige un conjunto e, IMPORTANTE MUY IMPORTANTE, anúncialo en el foro dentro del hilo correspondiente. Si alguien más lo elige antes que tú, deberás cambiarlo__. Aplica la prueba t de Student para muestras pareadas de un conjunto elegido por ti, comparando las medidas de los dedos de un estudiante (Muestra 1) con las medidas de los dedos de otro estudiante (Muestra 2) para determinar si hay diferencias significativas entre las medidas de los dedos de dos personas diferentes; usa un nivel de significancia de 0.05. Interpreta y/o resume los resultados con un pequeño párrafo que explique si las diferencias encontradas son estadísticamente significativas y qué implicaciones podrían tener en el contexto del estudio. Mira el ejemplo a continuación para guiarte sobre cómo proceder.
 
 ## Ejemplo de aplicación de la prueba t de Student para muestras pareadas
 
@@ -211,30 +228,30 @@ t.test(muestra_1, muestra_2, paired = TRUE)
 
 ---
 
-# Ejercicio 2: Comparación de medidas de dedos entre géneros
+# Ejercicio 2: Comparación de medidas de dedos entre géneros usando la prueba t de Student para muestras independientes
 
 ## Objetivo
 
 El objetivo de este ejercicio es aplicar la prueba t de Student para muestras independientes, comparando las medidas de los dedos entre géneros (hombre y mujer). Se busca determinar si existe una diferencia significativa entre las medidas de los dedos de hombres y mujeres.
 
-Para mantener el ejercicio simple, usaremos muestras balanceadas, es decir, cada muestra tendrá el mismo número de elementos. Para simplificar, crearé conjuntos de tres personas de cada género. Esto no implica que no pueda aplicarse la prueba t de Student con muestras desbalanceadas (por ejemplo, 5 hombres y 8 mujeres, pero hay un límite en el desbalance), sólo que para fines de cálculos es más sencillo. Es importante tener en cuenta que, con tamaños de muestras tan pequeños, el poder estadístico de la prueba se reduce mucho, pero al menos para un ejercicio de aula como éste, simplificamos mucho en cálculos.
+Para mantener el ejercicio simple, usaremos muestras balanceadas, es decir, cada muestra será pequeña, y tendrá el mismo número de elementos; serán tres mediciones de hombres, tres mediciones de mujeres. Esto no implica que no pueda aplicarse la prueba t de Student con muestras desbalanceadas (por ejemplo, 5 hombres y 8 mujeres, pero hay un límite en el desbalance), sólo que para fines de cálculos manuales, es más sencillo de esta forma. Es importante tener en cuenta que, con tamaños de muestras tan pequeños, el poder estadístico de la prueba se reduce mucho, pero al menos para un ejercicio de aula como éste, simplificamos mucho en cálculos.
 
 Por otro lado, al igual que en el ejercicio anterior, nos saltaremos la comprobación de supuestos para mantener el ejercicio lo más simple posible, y lo abordaremos en otra práctica.
 
 ## Planteamiento del Problema
 
-Elegirás un conjunto de datos, asegurándote de no duplicar con otro/a compañero/a. A diferencia del ejercicio anterior, en este las muestras no son pareadas, por lo que la comparación no será vis a vis. Cada conjunto, se compone de dos muestras independientes. La muestra 1 contiene las mediciones de un mismo dedo de tres personas género mujer elegidas al azar. La muestra 2 se compone igualmente de las mediciones del mismo dedo, pero de tres personas de género hombre. Se aplicará la prueba t de Student para muestras independientes para determinar si hay diferencias significativas entre las medidas de de dedos entre géneros.
+Elegirás un conjunto de datos, asegurándote de no duplicar con otro/a compañero/a. A diferencia del ejercicio anterior, en este las muestras no son pareadas, por lo que la comparación no será vis a vis. Aclarar además que los conjuntos de este ejercicio son distintos a los del anterior. Cada conjunto, se compone de dos muestras independientes. La muestra 1 contiene las mediciones de un mismo dedo de tres personas del género mujer elegidas al azar. La muestra 2 se construye igualmente, es decir, a partir de las mediciones del mismo dedo, pero de tres personas del género hombre. Se aplicará la prueba t de Student para muestras independientes, con la que podremos determinar si hay diferencias significativas entre las medidas del dedo elegido entre géneros.
 
 ## Recolección de Datos
 
 1. **Selección de individuos**: La tabla a continuación muestra combinaciones de tres hombres y combinaciones de tres mujeres elegidas al azar, así como un dedo de la mano, también elegido al azar.
 
-- Código con el que se generó el conjuntos de datos
+- Código con el que se generó el conjuntos de datos.
 
 ```{r}
 # Selección de hombres y mujeres
-hombres <- trimws(data[data$Género == "Hombre", "Nombre"])
-mujeres <- trimws(data[data$Género == "Mujer", "Nombre"])
+hombres <- trimws(data[data$genero == "Hombre", "pseudonimo"])
+mujeres <- trimws(data[data$genero == "Mujer", "pseudonimo"])
 
 # Crea la tabla de conjuntos
 set.seed(123) # Fija la semilla para reproducibilidad
@@ -246,19 +263,105 @@ conjuntos_ind <- data.frame(
 )
 ```
 
+Debes elegir un conjunto, anunciarlo en el hilo correspondiente en el foro, y tomar nota de los nombres de personas que te tocan y el dedo "elegido" (columna `Dedo elegido`) en la tabla siguiente.
+
 ```{r}
 knitr::kable(conjuntos_ind)
 ```
 
-
-2. **Obtención de las medidas de los dedos**: Las medidas del elegido de tus muestras están registradas en la hoja de cálculo proporcionada, la cual transcribo abajo. También encuentra en este mismo repo (archivo `biometria-basica.csv`) y en [esta ruta](https://docs.google.com/spreadsheets/d/14JrVEx-oKtIsGCDFh049DDtoh7o4FQJWFuDWNYS4nfk/edit?usp=sharing).
+2. **Obtención de las medidas de los dedos**: Las medidas del dedo elegido de tu conjunto están registradas en la hoja de cálculo proporcionada, la cual transcribo abajo. También se encuentra en este mismo repo, archivo `biometria-basica.csv`.
 
 ```{r}
 # Mostrar la tabla generada
 knitr::kable(data)
 ```
 
-3. **Mandato**. __Elige un conjunto e, IMPORTANTE MUY IMPORTANTE, anúncialo en el foro. Si alguien más lo elige antes que tú, deberás cambiarlo__. Aplica la prueba t de Student para muestras independientes, comparando las medidas de los dedos entre géneros de tu conjunto elegido, para determinar si existe diferencia significativa entre las medidas de los dedos de hombres y mujeres. Interpreta y/o resume los resultados con un pequeño párrafo que explique si las diferencias encontradas son estadísticamente significativas y qué implicaciones podrían tener en el contexto del estudio. Además, considera mirar, como referencia, los diagramas de cajas de la práctica anterior [(PA01. Generación de la matriz de distancias)](https://biogeografia-master.github.io/matriz-de-distancias/README.html), y encuentra el diagrama correspondiente al dedo que te tocó analizar. Se supone que el diagrama de caja y la prueba estadística, deben ser consistentes entre sí (una prueba con resultado significativo debería ser consistente con un diagrama de cajas con efecto). No obstante, ten presente que los diagramas de caja analizan la totalidad de los y las participantes, mientras que tú solamente estás analizando seis elementos (tres hombres y tres mujeres).
+3. **Mandato**. __Elige un conjunto e, IMPORTANTE MUY IMPORTANTE, anúncialo en el foro dentro del hilo correspondiente. Si alguien más lo elige antes que tú, deberás cambiarlo__. Aplica la prueba t de Student para muestras independientes, comparando las medidas del dedo entre géneros de tu conjunto elegido, para determinar si existe diferencia significativa entre las medidas entre hombres y mujeres. Interpreta y/o resume los resultados con un pequeño párrafo que explique si las diferencias encontradas son estadísticamente significativas y qué implicaciones podrían tener en el contexto del estudio. Además, considera mirar, como referencia, los diagramas de cajas siguientes.
+
+- Todos los dedos de todas las personas, según género.
+
+```{r}
+# Diagrama de cajas para todas las medidas de los dedos por género
+library(ggplot2)
+data_long <- reshape2::melt(
+  data,
+  id.vars = c("pseudonimo", "genero"),
+  measure.vars = colnames(data)[4:8],
+  variable.name = "Dedo", value.name = "Medida")
+ggplot(data_long, aes(x = Dedo, y = Medida, fill = genero)) +
+  geom_boxplot() +
+  labs(title = "Diagrama de cajas de medidas de dedos por género",
+       x = "Dedo",
+       y = "Medida (cm)",
+       fill = "Género") +
+  theme_minimal()
+```
+
+- El dedo elegido de cada conjunto:
+
+```{r, fig.height=10}
+# Paquetes
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(purrr)
+library(ggplot2)
+
+# Asegura que los nombres coincidan exactamente (espacios)
+data <- data %>% mutate(pseudonimo = trimws(pseudonimo))
+
+# Función auxiliar para dividir "A, B, C" -> c("A","B","C")
+split_trim <- function(x) trimws(unlist(str_split(x, ",")))
+
+# Construir el dataset para los 30 paneles:
+# - Para cada Conjunto: tomar sus 3 H + 3 M, pivotear dedos (cols 4:8),
+#   filtrar por el Dedo_elegido de ese conjunto.
+panel_df <- conjuntos_ind %>%
+  mutate(
+    hombres_sel = map(Hombres_elegidos, split_trim),
+    mujeres_sel = map(Mujeres_elegidas, split_trim),
+    seleccion   = map2(hombres_sel, mujeres_sel, ~c(.x, .y))
+  ) %>%
+  select(Conjunto, Dedo_elegido, seleccion) %>%
+  pmap_dfr(function(Conjunto, Dedo_elegido, seleccion) {
+    data %>%
+      filter(pseudonimo %in% seleccion) %>%      # 6 personas
+      mutate(Conjunto = Conjunto) %>%
+      pivot_longer(cols = 4:8, names_to = "Dedo", values_to = "Medida") %>%
+      filter(Dedo == Dedo_elegido)               # solo el dedo de ese conjunto
+  }) %>%
+  mutate(
+    genero = factor(genero, levels = c("Hombre","Mujer")),
+    facet  = sprintf("Conjunto %02d", as.integer(Conjunto))
+  )
+# Diagrama de cajas para todas las medidas de los dedos por género y conjunto
+p <- ggplot(panel_df,
+       aes(x = Dedo, y = Medida, fill = genero,
+           group = interaction(Dedo, genero))) +
+  geom_boxplot(position = position_dodge(width = 0.6),
+               width = 0.55, outlier.shape = 16, outlier.alpha = 0.6,
+               linewidth = 0.3) +
+  facet_wrap(~ facet, nrow = 5, ncol = 6, scales = "free") +
+  scale_x_discrete(drop = TRUE) +
+  labs(title = "Diagrama de cajas por conjunto (3 H + 3 M; dedo elegido por conjunto)",
+       x = "Dedo", y = "Medida (cm)", fill = "Género") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 9),
+    axis.text.x = element_text(size = 8),
+    legend.position = "bottom"
+  ) +
+  theme(panel.spacing.y = grid::unit(2.5, "lines"))
+# Exportar
+jpeg('img/diagrama_cajas_cada_conjunto.jpg', width=3000, height=3000, res=300)
+p
+invisible(dev.off())
+```
+
+![Diagrama de cajas por conjunto (3 H + 3 M; dedo elegido por conjunto)](img/diagrama_cajas_cada_conjunto.jpg)
+
+
+Se supone que el diagrama de caja y la prueba estadística, deben ser consistentes entre sí (una prueba con resultado significativo debería ser consistente con un diagrama de cajas con efecto). No obstante, ten presente que los diagramas de caja analizan la totalidad de los y las participantes, mientras que tú solamente estás analizando seis elementos (tres hombres y tres mujeres).
 
 Como comenté arriba, usarás muestras balanceadas, es decir, tres hombres y tres mujeres para realizar la comparación. Ten en cuenta que, con tamaños de muestras tan pequeños, el poder estadístico de la prueba es limitado, y esto deberías destacarlo en tu redacción.
 
@@ -397,6 +500,8 @@ Este cálculo demuestra que, a pesar del tamaño de muestra pequeño, se detect�
 
 ### ¿Cómo se haría en R?
 
+Este bloque de código muestra cómo se haría el ejercicio 2 en R.
+
 ```{r, eval = F, echo = T}
 # Datos de ejemplo
 hombres_medidas <- c(7.4, 7.1, 7.3)
@@ -410,13 +515,13 @@ La decisión se podría tomar mediante el valor de P. Si este es menor que el ni
 
 # Bonus (opcional)
 
-- ¿Cómo podrían aprovecharse los datos de estatura de para realizar un análisis más completo?
+Responde a estas preguntas.
 
-- ¿Qué tipo de pruebas estadísticas podrían aplicarse para comparar estas variables entre géneros o entre grupos de estudiantes?
+- ¿Cómo podrían aprovecharse los datos para analizar la relación entre los dedos? ¿Podríamos predecir el tamaño de un dedo usando otro u otros? ¿Qué técnicas estadísticas usaríamos?
+
+- ¿Qué tipo de pruebas estadísticas podrían aplicarse para evaluar la homogeneidad de las variables si dividiéramos a los estudiantes en tres o más grupos, por ejemplo, en grupos etarios (por edad)?
 
 - ¿Se podría predecir el género de un estudiante a partir de sus medidas biométricas y viceversa? ¿Cómo?
-
-- ¿Qué representación o representaciones gráficas podrían utilizarse para visualizar las diferencias entre géneros o grupos de estudiantes?
 
 ## Referencias
 

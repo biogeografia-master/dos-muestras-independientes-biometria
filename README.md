@@ -1,17 +1,16 @@
 Prácticas de aula 2 (PA02). Inferencia estadística a partir de dos
 muestras independientes usando datos biométricos<small><br>Biogeografía
-(GEO-131)<br>Universidad Autónoma de Santo Domingo (UASD)<br>Semestre
-2025-01</small>
+(GEO-131)<br>Universidad Autónoma de Santo Domingo (UASD)</small>
 ================
 El Tali
-2025-02-11
+2025-09-09
 
 Versión HTML (quizá más legible),
 [aquí](https://biogeografia-master.github.io/dos-muestras-independientes-biometria/README.html)
 
 # Fecha/hora de entrega
 
-**11 de febrero de 2025, 7:59 pm.**
+**Ver portal de la asignatura**
 
 # Justificación
 
@@ -45,7 +44,7 @@ ecología (e.g. modelos de efecto mixto). Como digo, la muestra pequeña
 sigue siendo predominante en ecología y biogeografía, y la estadística
 ha demostrado ser muy robusta en estos casos.
 
-# Ejercicio 1: Comparación de las Medidas de los dedos entre dos Estudiantes
+# Ejercicio 1: Comparación de las medidas de los dedos entre dos estudiantes usando la prueba t de Student para muestras emparejadas
 
 ## Objetivo
 
@@ -78,11 +77,15 @@ experimental”, para lo cual te recomiendo [este trabajo de Frank y otros
 ## Planteamiento del Problema
 
 Se cuenta con las medidas de los cinco dedos de una mano de varios
-estudiantes, registradas en un formulario que se almacena en una hoja de
-cálculo (archivo `biometria-basica.csv`). Se han creado 30 conjuntos de
-datos al azar, donde se señalan “Muestra_1” y “Muestra_2”. Debes elegir
-uno de los 30 conjuntos, asegurándote de no duplicar con otro/a
-compañero/a.
+estudiantes, cuyos nombres reales han sido anonimizados mediante
+pseudónimos, para lo cual se usó el paquete `charlatan` (no ’toy
+relajando, ke conste, puedes verlo en un código oculto dentro de la
+versión RMarkdown de este archivo `README.Rmd`). Las medidas se
+registraron en un formulario que almacenaba los datos en una hoja de
+cálculo (archivo `biometria-basica.csv`). Para los fines de este
+ejercicio, se crearon 30 conjuntos de datos al azar, donde se señalan
+“Muestra_1” y “Muestra_2”. Debes elegir uno de los 30 conjuntos,
+asegurándote de no duplicar con otro/a compañero/a.
 
 Para las dos muestras de tu conjunto, compararás las medidas de los
 cinco dedos, de forma pareada. En este caso, “pareada” significa, que
@@ -95,11 +98,11 @@ estudiantes (o muestras, en este caso, “Muestra_1” y “Muestra_2”).
 ## Recolección de Datos
 
 1.  **Creación de los conjuntos**: Se han creado conjuntos de pares de
-    estudiantes al azar utilizando sus nombres o pseudónimos con el
-    siguiente código de R (en la versión HTML de este cuaderno, si no
-    ves el código, presiona el botón `Show`). Cada conjunto se compone
-    de dos muestras, “Muestra_1” y “Muestra_2”, que representan las
-    medidas de los dedos de dos estudiantes diferentes.
+    estudiantes al azar utilizando pseudónimos con el siguiente código
+    de R (en la versión HTML de este cuaderno, si no ves el código,
+    presiona el botón `Show`). Cada conjunto se compone de dos muestras,
+    “Muestra_1” y “Muestra_2”, que representan las medidas de los dedos
+    de dos estudiantes diferentes.
 
 ``` r
 n_conjuntos <- 30
@@ -109,11 +112,9 @@ data <- read.csv("biometria-basica.csv", check.names = F)
 data <- data[!sapply(1:nrow(data), function(x) any(is.na(unlist(data[x, 4:8, drop=T])))), ]
 # Cambiar nombres de columnas
 colnames(data) <- gsub("\\..*|\\(.*", "", colnames(data))
-# Quitar espacios a nombres
-data$Nombre <- trimws(data$Nombre)
 
 # Combinaciones
-combinaciones <- t(combn(trimws(data[, grep('^Nombre', colnames(data))]), 2))
+combinaciones <- t(combn(trimws(data[, grep('^pseudonimo', colnames(data))]), 2))
 set.seed(999) # Fijar la semilla para reproducibilidad
 seleccion <- combinaciones[
   sample(1:nrow(combinaciones),
@@ -131,90 +132,102 @@ conjuntos_par <- data.frame(
 knitr::kable(conjuntos_par)
 ```
 
-| Conjunto    | Muestra_1 | Muestra_2      |
-|:------------|:----------|:---------------|
-| Conjunto 1  | Loise     | Roberto        |
-| Conjunto 2  | Josías    | Gerson         |
-| Conjunto 3  | Josías    | aldz           |
-| Conjunto 4  | aldz      | Sun            |
-| Conjunto 5  | Tali      | Roberto        |
-| Conjunto 6  | Josías    | Nathali        |
-| Conjunto 7  | Lissette  | Elena          |
-| Conjunto 8  | Tali      | Nathali        |
-| Conjunto 9  | Loise     | Samil          |
-| Conjunto 10 | Wellin    | Nathali        |
-| Conjunto 11 | Loise     | Nathali        |
-| Conjunto 12 | Lissette  | Nathali        |
-| Conjunto 13 | Gomeris   | Samil          |
-| Conjunto 14 | Josías    | Roberto        |
-| Conjunto 15 | Tali      | Gomeris        |
-| Conjunto 16 | Wellin    | Gerson         |
-| Conjunto 17 | Josías    | Gomeris        |
-| Conjunto 18 | Loise     | aldz           |
-| Conjunto 19 | Gomeris   | Elena          |
-| Conjunto 20 | Fabiel    | Elena          |
-| Conjunto 21 | Wellin    | Elena          |
-| Conjunto 22 | Sun       | Elena          |
-| Conjunto 23 | aldz      | Gerson         |
-| Conjunto 24 | Tali      | Samil          |
-| Conjunto 25 | Wellin    | aldz           |
-| Conjunto 26 | Lissette  | Gomeris        |
-| Conjunto 27 | Sun       | Samil          |
-| Conjunto 28 | Lissette  | Fabiel         |
-| Conjunto 29 | Elena     | Roberto        |
-| Conjunto 30 | Loise     | Ilexis Jimenez |
+| Conjunto    | Muestra_1                          | Muestra_2                    |
+|:------------|:-----------------------------------|:-----------------------------|
+| Conjunto 1  | Ing. Francisca Rosario             | Rolando Velásquez            |
+| Conjunto 2  | Israel José Carlos Aguilera        | Irma Pérez                   |
+| Conjunto 3  | Lic. Paola Griego                  | Ignacio Iván Hernández       |
+| Conjunto 4  | María Teresa Rufino Garibay        | Ignacio Iván Hernández       |
+| Conjunto 5  | Ignacio Iván Hernández             | Sr(a). Celia Maya            |
+| Conjunto 6  | Bianca Mauricio Anguiano Zedillo   | Horacio Villarreal           |
+| Conjunto 7  | Magdalena Yeni Hinojosa Armendáriz | Ing. Francisca Rosario       |
+| Conjunto 8  | Clara Cornelio Quintana            | Ing. Graciela Puente         |
+| Conjunto 9  | Esparta Flórez Marroquín           | Ing. Claudio Alva            |
+| Conjunto 10 | José Eduardo Conchita Morales      | Ing. Graciela Puente         |
+| Conjunto 11 | Lic. Paola Griego                  | Ing. Cornelio Cabán          |
+| Conjunto 12 | Héctor Ramón Alarcón               | Antonia Andrea Lerma López   |
+| Conjunto 13 | Ing. Indira Ybarra                 | Juan Carlos Marrero Frías    |
+| Conjunto 14 | Héctor Ramón Alarcón               | Irma Pérez                   |
+| Conjunto 15 | Yeni Ybarra Olvera                 | Soledad Ponce                |
+| Conjunto 16 | René Carreón Villanueva            | Héctor Ramón Alarcón         |
+| Conjunto 17 | Lic. Paola Griego                  | Silvano Berta Amaya Monroy   |
+| Conjunto 18 | Antonia Andrea Lerma López         | Ing. Indira Ybarra           |
+| Conjunto 19 | Bianca Romero                      | Aldonza Tapia Macías         |
+| Conjunto 20 | Héctor Ramón Alarcón               | Bianca Romero                |
+| Conjunto 21 | Bianca Mauricio Anguiano Zedillo   | Bianca Romero                |
+| Conjunto 22 | Ing. Graciela Puente               | Horacio Villarreal           |
+| Conjunto 23 | Horacio Villarreal                 | Lorena Abraham Tapia Almanza |
+| Conjunto 24 | Sr(a). María Elena Villareal       | Horacio Villarreal           |
+| Conjunto 25 | Ing. Graciela Puente               | Lorena Abraham Tapia Almanza |
+| Conjunto 26 | Lic. Paola Griego                  | Abril Adriana Castellanos    |
+| Conjunto 27 | Abril Adriana Castellanos          | Dr. Ofelia Bonilla           |
+| Conjunto 28 | Dr. Fidel Peres                    | Silvano Berta Amaya Monroy   |
+| Conjunto 29 | José Eduardo Conchita Morales      | Abril Adriana Castellanos    |
+| Conjunto 30 | Magdalena Yeni Hinojosa Armendáriz | Bianca Romero                |
 
 2.  **Obtención de las medidas de los dedos**: Las medidas de los cinco
     dedos de la mano de cada estudiante están registradas en la hoja de
     cálculo proporcionada, la cual transcribo abajo. También encuentra
-    en este mismo repo (archivo `biometria-basica.csv`) y en [esta ruta
-    de Google
-    Spreadsheets](https://docs.google.com/spreadsheets/d/1XsLfqS-xOAMjutK6zgQB9inw6G2VhWt2bNmaaC3eBrA/edit?usp=sharing).
+    en este mismo repo (archivo `biometria-basica.csv`).
 
 ``` r
 # Mostrar la tabla generada
 knitr::kable(data)
 ```
 
-|     | Marca temporal     | Nombre         | Género | Pulgar | Índice | Mayor | Anular | Meñique | Estatura |
-|:----|:-------------------|:---------------|:-------|-------:|-------:|------:|-------:|--------:|---------:|
-| 1   | 4/02/2025 12:17:37 | Tali           | Hombre |    6.0 |    7.2 |   8.0 |    7.7 |     6.3 |   182.88 |
-| 2   | 4/02/2025 17:37:28 | Loise          |        |    6.0 |    6.6 |   7.5 |    6.5 |     5.0 |   154.00 |
-| 3   | 4/02/2025 17:38:26 | Wellin         | Mujer  |    6.1 |    6.6 |   7.5 |    7.2 |     5.6 |   160.02 |
-| 4   | 4/02/2025 17:47:20 | Ilexis Jimenez | Hombre |    6.3 |    7.0 |   8.2 |    7.5 |     6.5 |   179.83 |
-| 5   | 4/02/2025 17:54:54 | Lissette       | Mujer  |    5.3 |    7.2 |   8.1 |    6.9 |     5.3 |   152.40 |
-| 6   | 4/02/2025 17:59:12 | Josías         | Hombre |    6.5 |    6.9 |   7.5 |    7.0 |     6.5 |   165.10 |
-| 7   | 4/02/2025 18:04:56 | aldz           | Mujer  |    5.5 |    7.0 |   8.0 |    7.5 |     6.0 |   165.01 |
-| 8   | 4/02/2025 18:14:50 | Gomeris        | Hombre |    6.0 |    6.8 |   7.5 |    7.4 |     6.3 |   176.78 |
-| 9   | 4/02/2025 18:16:44 | Sun            | Mujer  |    6.7 |    7.3 |   8.3 |    7.8 |     6.3 |   169.00 |
-| 10  | 4/02/2025 18:17:54 | Samil          | Hombre |    7.2 |    7.5 |   8.5 |    7.6 |     6.5 |     5.90 |
-| 11  | 4/02/2025 18:18:51 | Nathali        | Mujer  |    6.0 |    8.0 |   8.7 |    7.2 |     6.2 |       NA |
-| 12  | 4/02/2025 18:26:45 | Fabiel         | Hombre |    6.6 |    8.2 |   9.0 |    7.6 |     6.2 |   176.00 |
-| 13  | 4/02/2025 18:40:42 | Elena          | Mujer  |    6.0 |    6.3 |   7.2 |    7.0 |     5.5 |       NA |
-| 15  | 4/02/2025 19:18:42 | Gerson         | Hombre |    7.5 |    8.5 |   9.5 |    9.0 |     7.0 |   172.72 |
-| 16  | 5/02/2025 17:50:56 | Roberto        | Hombre |    6.5 |    7.0 |   7.5 |    6.9 |     5.9 |   166.00 |
+| marca_temporal      | pseudonimo                         | genero | pulgar | índice | mayor | anular | menique |
+|:--------------------|:-----------------------------------|:-------|-------:|-------:|------:|-------:|--------:|
+| 19/08/2025 18:57:20 | Magdalena Yeni Hinojosa Armendáriz | Mujer  |    6.0 |    6.5 |   7.4 |    6.5 |     5.0 |
+| 19/08/2025 18:57:47 | Israel José Carlos Aguilera        | Hombre |    6.5 |    7.0 |   9.0 |    8.0 |     6.6 |
+| 19/08/2025 18:59:23 | René Carreón Villanueva            | Hombre |    6.5 |    6.6 |   7.9 |    7.2 |     5.7 |
+| 19/08/2025 18:59:49 | José Luis Grijalva Anguiano        | Hombre |    6.8 |    7.7 |   8.2 |    7.9 |     6.7 |
+| 19/08/2025 18:59:51 | Samuel Bruno Noriega               | Hombre |    7.0 |    9.0 |  10.0 |    9.0 |     7.5 |
+| 19/08/2025 19:02:03 | Bianca Mauricio Anguiano Zedillo   | Mujer  |    5.7 |    7.6 |   7.2 |    8.1 |     6.4 |
+| 19/08/2025 19:02:07 | José Eduardo Conchita Morales      | Hombre |    6.4 |    7.4 |   8.3 |    7.9 |     6.4 |
+| 19/08/2025 19:03:47 | Dr. Fidel Peres                    | Hombre |    6.7 |    7.2 |   8.2 |    7.4 |     5.7 |
+| 19/08/2025 19:04:17 | Esparta Flórez Marroquín           | Mujer  |    6.4 |    7.0 |   8.2 |    7.5 |     6.3 |
+| 20/08/2024 17:20:02 | Clara Cornelio Quintana            | Mujer  |    6.5 |    7.5 |   7.5 |    6.9 |     5.6 |
+| 20/08/2024 17:20:43 | Ing. Francisca Rosario             | Mujer  |    6.0 |    6.5 |   7.5 |    7.0 |     6.0 |
+| 20/08/2024 17:21:36 | María Teresa Rufino Garibay        | Mujer  |    6.1 |    7.4 |   7.5 |    6.8 |     5.9 |
+| 20/08/2024 17:24:44 | Ing. Graciela Puente               | Mujer  |    5.0 |    5.7 |   6.6 |    5.8 |     5.0 |
+| 20/08/2024 17:26:17 | Héctor Ramón Alarcón               | Hombre |    5.9 |    6.9 |   7.6 |    7.1 |     5.6 |
+| 20/08/2024 17:26:32 | Antonia Andrea Lerma López         | Mujer  |    5.5 |    6.2 |   7.0 |    6.5 |     5.3 |
+| 20/08/2024 17:27:02 | Sr(a). María Elena Villareal       | Mujer  |    6.4 |    7.1 |   8.3 |    7.4 |     5.9 |
+| 20/08/2024 17:27:40 | Bianca Romero                      | Mujer  |    7.0 |    8.0 |   8.2 |    7.2 |     6.0 |
+| 20/08/2024 17:27:42 | Yeni Ybarra Olvera                 | Mujer  |    5.3 |    6.6 |   7.2 |    6.6 |     5.4 |
+| 20/08/2024 17:28:14 | Dr. Marisol Estévez                | Mujer  |    5.0 |    6.0 |   6.5 |    6.9 |     4.9 |
+| 20/08/2024 17:28:29 | Rolando Velásquez                  | Hombre |    6.1 |    7.3 |   7.9 |    7.4 |     5.8 |
+| 20/08/2024 17:30:00 | Aldonza Tapia Macías               | Mujer  |    6.2 |    6.5 |   7.6 |    6.8 |     5.7 |
+| 20/08/2024 17:30:10 | Horacio Villarreal                 | Hombre |    7.2 |    8.3 |   9.2 |    8.5 |     7.0 |
+| 20/08/2024 17:33:34 | Ing. Indira Ybarra                 | Mujer  |    5.6 |    7.1 |   8.1 |    7.4 |     6.2 |
+| 4/02/2025 17:37:28  | Lic. Paola Griego                  | Mujer  |    6.0 |    6.6 |   7.5 |    6.5 |     5.0 |
+| 4/02/2025 17:38:26  | Lorena Abraham Tapia Almanza       | Mujer  |    6.1 |    6.6 |   7.5 |    7.2 |     5.6 |
+| 4/02/2025 17:47:20  | Silvano Berta Amaya Monroy         | Hombre |    6.3 |    7.0 |   8.2 |    7.5 |     6.5 |
+| 4/02/2025 17:54:54  | Irma Pérez                         | Mujer  |    5.3 |    7.2 |   8.1 |    6.9 |     5.3 |
+| 4/02/2025 17:59:12  | Ing. Claudio Alva                  | Hombre |    6.5 |    6.9 |   7.5 |    7.0 |     6.5 |
+| 4/02/2025 18:04:56  | Abril Adriana Castellanos          | Mujer  |    5.5 |    7.0 |   8.0 |    7.5 |     6.0 |
+| 4/02/2025 18:14:50  | Ing. Cornelio Cabán                | Hombre |    6.0 |    6.8 |   7.5 |    7.4 |     6.3 |
+| 4/02/2025 18:16:44  | Dr. Ofelia Bonilla                 | Mujer  |    6.7 |    7.3 |   8.3 |    7.8 |     6.3 |
+| 4/02/2025 18:17:54  | Ignacio Iván Hernández             | Hombre |    7.2 |    7.5 |   8.5 |    7.6 |     6.5 |
+| 4/02/2025 18:18:51  | Soledad Ponce                      | Mujer  |    6.0 |    8.0 |   8.7 |    7.2 |     6.2 |
+| 4/02/2025 18:26:45  | Dr. Francisco Javier Bustamante    | Hombre |    6.6 |    8.2 |   9.0 |    7.6 |     6.2 |
+| 4/02/2025 18:40:42  | Sr(a). Celia Maya                  | Mujer  |    6.0 |    6.3 |   7.2 |    7.0 |     5.5 |
+| 4/02/2025 19:18:42  | Juan Carlos Marrero Frías          | Hombre |    7.5 |    8.5 |   9.5 |    9.0 |     7.0 |
+| 5/02/2025 17:50:56  | Humberto Martínez Olmos            | Hombre |    6.5 |    7.0 |   7.5 |    6.9 |     5.9 |
 
 3.  **Mandato**. **Elige un conjunto e, IMPORTANTE MUY IMPORTANTE,
-    anúncialo en el foro. Si alguien más lo elige antes que tú, deberás
-    cambiarlo**. Aplica la prueba t de Student para muestras pareadas de
-    un conjunto elegido por ti, comparando las medidas de los dedos de
-    un estudiante (Muestra 1) con las medidas de los dedos de otro
-    estudiante (Muestra 2) para determinar si hay diferencias
-    significativas entre las medidas de los dedos de dos personas
-    diferentes; usa un nivel de significancia de 0.05. Interpreta y/o
-    resume los resultados con un pequeño párrafo que explique si las
-    diferencias encontradas son estadísticamente significativas y qué
-    implicaciones podrían tener en el contexto del estudio.
-    **Importante**. Considera mirar, como referencia, la matriz de
-    distancias/mapa de calor de la práctica anterior [(PA01. Generación
-    de la matriz de
-    distancias)](https://biogeografia-master.github.io/matriz-de-distancias/README.html);
-    si encuentras la combinación que te tocó, pues úsala, de lo
-    contrario, pues simplemente no compares con dicho ejercicio. No
-    existe una ley estricta que sugiera un patrón común entre la matriz
-    de distancia y el resultado de la prueba, pero normalmente sí hay
-    consistencia entre ambas técnicas. Mira el ejemplo a continuación
-    para guiarte sobre cómo proceder.
+    anúncialo en el foro dentro del hilo correspondiente. Si alguien más
+    lo elige antes que tú, deberás cambiarlo**. Aplica la prueba t de
+    Student para muestras pareadas de un conjunto elegido por ti,
+    comparando las medidas de los dedos de un estudiante (Muestra 1) con
+    las medidas de los dedos de otro estudiante (Muestra 2) para
+    determinar si hay diferencias significativas entre las medidas de
+    los dedos de dos personas diferentes; usa un nivel de significancia
+    de 0.05. Interpreta y/o resume los resultados con un pequeño párrafo
+    que explique si las diferencias encontradas son estadísticamente
+    significativas y qué implicaciones podrían tener en el contexto del
+    estudio. Mira el ejemplo a continuación para guiarte sobre cómo
+    proceder.
 
 ## Ejemplo de aplicación de la prueba t de Student para muestras pareadas
 
@@ -347,7 +360,7 @@ t.test(muestra_1, muestra_2, paired = TRUE)
 
 ------------------------------------------------------------------------
 
-# Ejercicio 2: Comparación de medidas de dedos entre géneros
+# Ejercicio 2: Comparación de medidas de dedos entre géneros usando la prueba t de Student para muestras independientes
 
 ## Objetivo
 
@@ -357,14 +370,15 @@ géneros (hombre y mujer). Se busca determinar si existe una diferencia
 significativa entre las medidas de los dedos de hombres y mujeres.
 
 Para mantener el ejercicio simple, usaremos muestras balanceadas, es
-decir, cada muestra tendrá el mismo número de elementos. Para
-simplificar, crearé conjuntos de tres personas de cada género. Esto no
+decir, cada muestra será pequeña, y tendrá el mismo número de elementos;
+serán tres mediciones de hombres, tres mediciones de mujeres. Esto no
 implica que no pueda aplicarse la prueba t de Student con muestras
 desbalanceadas (por ejemplo, 5 hombres y 8 mujeres, pero hay un límite
-en el desbalance), sólo que para fines de cálculos es más sencillo. Es
-importante tener en cuenta que, con tamaños de muestras tan pequeños, el
-poder estadístico de la prueba se reduce mucho, pero al menos para un
-ejercicio de aula como éste, simplificamos mucho en cálculos.
+en el desbalance), sólo que para fines de cálculos manuales, es más
+sencillo de esta forma. Es importante tener en cuenta que, con tamaños
+de muestras tan pequeños, el poder estadístico de la prueba se reduce
+mucho, pero al menos para un ejercicio de aula como éste, simplificamos
+mucho en cálculos.
 
 Por otro lado, al igual que en el ejercicio anterior, nos saltaremos la
 comprobación de supuestos para mantener el ejercicio lo más simple
@@ -374,13 +388,15 @@ posible, y lo abordaremos en otra práctica.
 
 Elegirás un conjunto de datos, asegurándote de no duplicar con otro/a
 compañero/a. A diferencia del ejercicio anterior, en este las muestras
-no son pareadas, por lo que la comparación no será vis a vis. Cada
-conjunto, se compone de dos muestras independientes. La muestra 1
-contiene las mediciones de un mismo dedo de tres personas género mujer
-elegidas al azar. La muestra 2 se compone igualmente de las mediciones
-del mismo dedo, pero de tres personas de género hombre. Se aplicará la
-prueba t de Student para muestras independientes para determinar si hay
-diferencias significativas entre las medidas de de dedos entre géneros.
+no son pareadas, por lo que la comparación no será vis a vis. Aclarar
+además que los conjuntos de este ejercicio son distintos a los del
+anterior. Cada conjunto, se compone de dos muestras independientes. La
+muestra 1 contiene las mediciones de un mismo dedo de tres personas del
+género mujer elegidas al azar. La muestra 2 se construye igualmente, es
+decir, a partir de las mediciones del mismo dedo, pero de tres personas
+del género hombre. Se aplicará la prueba t de Student para muestras
+independientes, con la que podremos determinar si hay diferencias
+significativas entre las medidas del dedo elegido entre géneros.
 
 ## Recolección de Datos
 
@@ -389,12 +405,12 @@ diferencias significativas entre las medidas de de dedos entre géneros.
     elegidas al azar, así como un dedo de la mano, también elegido al
     azar.
 
-- Código con el que se generó el conjuntos de datos
+- Código con el que se generó el conjuntos de datos.
 
 ``` r
 # Selección de hombres y mujeres
-hombres <- trimws(data[data$Género == "Hombre", "Nombre"])
-mujeres <- trimws(data[data$Género == "Mujer", "Nombre"])
+hombres <- trimws(data[data$genero == "Hombre", "pseudonimo"])
+mujeres <- trimws(data[data$genero == "Mujer", "pseudonimo"])
 
 # Crea la tabla de conjuntos
 set.seed(123) # Fija la semilla para reproducibilidad
@@ -406,92 +422,204 @@ conjuntos_ind <- data.frame(
 )
 ```
 
+Debes elegir un conjunto, anunciarlo en el hilo correspondiente en el
+foro, y tomar nota de los nombres de personas que te tocan y el dedo
+“elegido” (columna `Dedo elegido`) en la tabla siguiente.
+
 ``` r
 knitr::kable(conjuntos_ind)
 ```
 
-| Conjunto | Hombres_elegidos                | Mujeres_elegidas         | Dedo_elegido |
-|---------:|:--------------------------------|:-------------------------|:-------------|
-|        1 | Gerson, Roberto, Josías         | Wellin, Elena, aldz      | Pulgar       |
-|        2 | Fabiel, Josías, Ilexis Jimenez  | aldz, Sun, Elena         | Anular       |
-|        3 | Ilexis Jimenez, Fabiel, Josías  | Wellin, aldz, Lissette   | Índice       |
-|        4 | Samil, Gomeris, Fabiel          | Nathali, aldz, Elena     | Anular       |
-|        5 | Fabiel, Tali, Ilexis Jimenez    | Elena, Lissette, aldz    | Meñique      |
-|        6 | Josías, Samil, Roberto          | Nathali, Elena, Sun      | Meñique      |
-|        7 | Josías, Tali, Gomeris           | aldz, Lissette, Nathali  | Meñique      |
-|        8 | Tali, Roberto, Samil            | Lissette, Sun, Elena     | Meñique      |
-|        9 | Josías, Ilexis Jimenez, Gerson  | Lissette, Sun, Nathali   | Pulgar       |
-|       10 | Tali, Fabiel, Josías            | Elena, Wellin, Lissette  | Índice       |
-|       11 | Gomeris, Fabiel, Tali           | Elena, aldz, Sun         | Pulgar       |
-|       12 | Josías, Gerson, Samil           | Elena, aldz, Lissette    | Índice       |
-|       13 | Gomeris, Gerson, Ilexis Jimenez | Wellin, aldz, Nathali    | Meñique      |
-|       14 | Samil, Gerson, Tali             | Nathali, Lissette, Elena | Meñique      |
-|       15 | Tali, Ilexis Jimenez, Josías    | Elena, aldz, Lissette    | Pulgar       |
-|       16 | Gomeris, Samil, Gerson          | Nathali, Elena, aldz     | Índice       |
-|       17 | Josías, Fabiel, Tali            | aldz, Sun, Nathali       | Meñique      |
-|       18 | Ilexis Jimenez, Samil, Gerson   | Elena, Sun, Wellin       | Anular       |
-|       19 | Roberto, Gomeris, Samil         | aldz, Wellin, Elena      | Índice       |
-|       20 | Ilexis Jimenez, Tali, Gerson    | Elena, Lissette, Wellin  | Índice       |
-|       21 | Josías, Tali, Fabiel            | Lissette, Nathali, aldz  | Mayor        |
-|       22 | Samil, Gerson, Tali             | Sun, Elena, Wellin       | Pulgar       |
-|       23 | Gerson, Ilexis Jimenez, Gomeris | Elena, Sun, Wellin       | Pulgar       |
-|       24 | Gerson, Gomeris, Fabiel         | Elena, aldz, Sun         | Meñique      |
-|       25 | Fabiel, Josías, Roberto         | Sun, aldz, Wellin        | Meñique      |
-|       26 | Fabiel, Gerson, Tali            | Sun, Elena, Nathali      | Mayor        |
-|       27 | Fabiel, Ilexis Jimenez, Tali    | Elena, Wellin, Lissette  | Índice       |
-|       28 | Ilexis Jimenez, Gomeris, Samil  | aldz, Sun, Elena         | Meñique      |
-|       29 | Samil, Fabiel, Josías           | Wellin, Nathali, Elena   | Meñique      |
-|       30 | Tali, Gomeris, Fabiel           | Lissette, aldz, Wellin   | Mayor        |
+| Conjunto | Hombres_elegidos                                                                         | Mujeres_elegidas                                                                     | Dedo_elegido |
+|---------:|:-----------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------|:-------------|
+|        1 | Juan Carlos Marrero Frías, Humberto Martínez Olmos, José Luis Grijalva Anguiano          | Ing. Francisca Rosario, Dr. Ofelia Bonilla, Ing. Indira Ybarra                       | pulgar       |
+|        2 | Dr. Francisco Javier Bustamante, José Luis Grijalva Anguiano, Silvano Berta Amaya Monroy | Esparta Flórez Marroquín, Antonia Andrea Lerma López, Lorena Abraham Tapia Almanza   | índice       |
+|        3 | René Carreón Villanueva, Dr. Fidel Peres, Ing. Claudio Alva                              | Dr. Marisol Estévez, Ing. Indira Ybarra, Esparta Flórez Marroquín                    | menique      |
+|        4 | José Eduardo Conchita Morales, Samuel Bruno Noriega, Dr. Francisco Javier Bustamante     | Ing. Indira Ybarra, Ing. Graciela Puente, Esparta Flórez Marroquín                   | menique      |
+|        5 | Dr. Fidel Peres, Horacio Villarreal, Silvano Berta Amaya Monroy                          | Lic. Paola Griego, Ing. Francisca Rosario, Antonia Andrea Lerma López                | pulgar       |
+|        6 | Ing. Claudio Alva, José Eduardo Conchita Morales, José Luis Grijalva Anguiano            | Dr. Ofelia Bonilla, Bianca Romero, Abril Adriana Castellanos                         | índice       |
+|        7 | Ing. Claudio Alva, Horacio Villarreal, Ing. Cornelio Cabán                               | Bianca Romero, Dr. Marisol Estévez, Bianca Mauricio Anguiano Zedillo                 | menique      |
+|        8 | Horacio Villarreal, Humberto Martínez Olmos, Ignacio Iván Hernández                      | Bianca Romero, Dr. Marisol Estévez, Ing. Indira Ybarra                               | anular       |
+|        9 | José Luis Grijalva Anguiano, Rolando Velásquez, Silvano Berta Amaya Monroy               | Irma Pérez, Ing. Indira Ybarra, Esparta Flórez Marroquín                             | índice       |
+|       10 | Héctor Ramón Alarcón, Silvano Berta Amaya Monroy, Horacio Villarreal                     | Antonia Andrea Lerma López, Ing. Indira Ybarra, Dr. Ofelia Bonilla                   | índice       |
+|       11 | Dr. Francisco Javier Bustamante, José Luis Grijalva Anguiano, Samuel Bruno Noriega       | Lic. Paola Griego, Irma Pérez, Yeni Ybarra Olvera                                    | mayor        |
+|       12 | Dr. Francisco Javier Bustamante, Israel José Carlos Aguilera, Ing. Claudio Alva          | Ing. Graciela Puente, Lic. Paola Griego, María Teresa Rufino Garibay                 | pulgar       |
+|       13 | Héctor Ramón Alarcón, José Eduardo Conchita Morales, Ing. Cornelio Cabán                 | Ing. Indira Ybarra, Ing. Graciela Puente, Bianca Romero                              | pulgar       |
+|       14 | Juan Carlos Marrero Frías, Silvano Berta Amaya Monroy, Ignacio Iván Hernández            | Ing. Francisca Rosario, María Teresa Rufino Garibay, Lorena Abraham Tapia Almanza    | menique      |
+|       15 | Héctor Ramón Alarcón, Horacio Villarreal, Juan Carlos Marrero Frías                      | Sr(a). Celia Maya, Yeni Ybarra Olvera, Clara Cornelio Quintana                       | menique      |
+|       16 | Silvano Berta Amaya Monroy, Héctor Ramón Alarcón, Ing. Claudio Alva                      | Dr. Marisol Estévez, Ing. Indira Ybarra, Dr. Ofelia Bonilla                          | mayor        |
+|       17 | Ing. Cornelio Cabán, José Eduardo Conchita Morales, Héctor Ramón Alarcón                 | Ing. Graciela Puente, Sr(a). María Elena Villareal, Sr(a). Celia Maya                | índice       |
+|       18 | José Eduardo Conchita Morales, Ing. Claudio Alva, Dr. Fidel Peres                        | Bianca Mauricio Anguiano Zedillo, Lorena Abraham Tapia Almanza, Aldonza Tapia Macías | menique      |
+|       19 | Horacio Villarreal, René Carreón Villanueva, Ignacio Iván Hernández                      | Dr. Ofelia Bonilla, Soledad Ponce, Lic. Paola Griego                                 | menique      |
+|       20 | José Eduardo Conchita Morales, Rolando Velásquez, Ing. Cornelio Cabán                    | Ing. Graciela Puente, Clara Cornelio Quintana, Magdalena Yeni Hinojosa Armendáriz    | mayor        |
+|       21 | Juan Carlos Marrero Frías, Ignacio Iván Hernández, René Carreón Villanueva               | Antonia Andrea Lerma López, Soledad Ponce, Lorena Abraham Tapia Almanza              | mayor        |
+|       22 | Israel José Carlos Aguilera, Horacio Villarreal, Ing. Claudio Alva                       | Yeni Ybarra Olvera, Lorena Abraham Tapia Almanza, Antonia Andrea Lerma López         | pulgar       |
+|       23 | Horacio Villarreal, Dr. Fidel Peres, José Eduardo Conchita Morales                       | Esparta Flórez Marroquín, Clara Cornelio Quintana, Dr. Marisol Estévez               | anular       |
+|       24 | Juan Carlos Marrero Frías, Horacio Villarreal, Silvano Berta Amaya Monroy                | Irma Pérez, Bianca Romero, Yeni Ybarra Olvera                                        | índice       |
+|       25 | Ing. Cornelio Cabán, Juan Carlos Marrero Frías, Samuel Bruno Noriega                     | Antonia Andrea Lerma López, Ing. Indira Ybarra, Aldonza Tapia Macías                 | pulgar       |
+|       26 | Dr. Francisco Javier Bustamante, Dr. Fidel Peres, Ing. Claudio Alva                      | Bianca Mauricio Anguiano Zedillo, Yeni Ybarra Olvera, Aldonza Tapia Macías           | índice       |
+|       27 | Rolando Velásquez, Dr. Fidel Peres, Juan Carlos Marrero Frías                            | Ing. Indira Ybarra, María Teresa Rufino Garibay, Antonia Andrea Lerma López          | anular       |
+|       28 | Héctor Ramón Alarcón, Juan Carlos Marrero Frías, Israel José Carlos Aguilera             | Dr. Marisol Estévez, Clara Cornelio Quintana, Aldonza Tapia Macías                   | menique      |
+|       29 | Dr. Fidel Peres, René Carreón Villanueva, Israel José Carlos Aguilera                    | Ing. Indira Ybarra, Lorena Abraham Tapia Almanza, Magdalena Yeni Hinojosa Armendáriz | pulgar       |
+|       30 | René Carreón Villanueva, Samuel Bruno Noriega, Ignacio Iván Hernández                    | Antonia Andrea Lerma López, Sr(a). Celia Maya, Bianca Romero                         | pulgar       |
 
-2.  **Obtención de las medidas de los dedos**: Las medidas del elegido
-    de tus muestras están registradas en la hoja de cálculo
-    proporcionada, la cual transcribo abajo. También encuentra en este
-    mismo repo (archivo `biometria-basica.csv`) y en [esta
-    ruta](https://docs.google.com/spreadsheets/d/14JrVEx-oKtIsGCDFh049DDtoh7o4FQJWFuDWNYS4nfk/edit?usp=sharing).
+2.  **Obtención de las medidas de los dedos**: Las medidas del dedo
+    elegido de tu conjunto están registradas en la hoja de cálculo
+    proporcionada, la cual transcribo abajo. También se encuentra en
+    este mismo repo, archivo `biometria-basica.csv`.
 
 ``` r
 # Mostrar la tabla generada
 knitr::kable(data)
 ```
 
-|     | Marca temporal     | Nombre         | Género | Pulgar | Índice | Mayor | Anular | Meñique | Estatura |
-|:----|:-------------------|:---------------|:-------|-------:|-------:|------:|-------:|--------:|---------:|
-| 1   | 4/02/2025 12:17:37 | Tali           | Hombre |    6.0 |    7.2 |   8.0 |    7.7 |     6.3 |   182.88 |
-| 2   | 4/02/2025 17:37:28 | Loise          |        |    6.0 |    6.6 |   7.5 |    6.5 |     5.0 |   154.00 |
-| 3   | 4/02/2025 17:38:26 | Wellin         | Mujer  |    6.1 |    6.6 |   7.5 |    7.2 |     5.6 |   160.02 |
-| 4   | 4/02/2025 17:47:20 | Ilexis Jimenez | Hombre |    6.3 |    7.0 |   8.2 |    7.5 |     6.5 |   179.83 |
-| 5   | 4/02/2025 17:54:54 | Lissette       | Mujer  |    5.3 |    7.2 |   8.1 |    6.9 |     5.3 |   152.40 |
-| 6   | 4/02/2025 17:59:12 | Josías         | Hombre |    6.5 |    6.9 |   7.5 |    7.0 |     6.5 |   165.10 |
-| 7   | 4/02/2025 18:04:56 | aldz           | Mujer  |    5.5 |    7.0 |   8.0 |    7.5 |     6.0 |   165.01 |
-| 8   | 4/02/2025 18:14:50 | Gomeris        | Hombre |    6.0 |    6.8 |   7.5 |    7.4 |     6.3 |   176.78 |
-| 9   | 4/02/2025 18:16:44 | Sun            | Mujer  |    6.7 |    7.3 |   8.3 |    7.8 |     6.3 |   169.00 |
-| 10  | 4/02/2025 18:17:54 | Samil          | Hombre |    7.2 |    7.5 |   8.5 |    7.6 |     6.5 |     5.90 |
-| 11  | 4/02/2025 18:18:51 | Nathali        | Mujer  |    6.0 |    8.0 |   8.7 |    7.2 |     6.2 |       NA |
-| 12  | 4/02/2025 18:26:45 | Fabiel         | Hombre |    6.6 |    8.2 |   9.0 |    7.6 |     6.2 |   176.00 |
-| 13  | 4/02/2025 18:40:42 | Elena          | Mujer  |    6.0 |    6.3 |   7.2 |    7.0 |     5.5 |       NA |
-| 15  | 4/02/2025 19:18:42 | Gerson         | Hombre |    7.5 |    8.5 |   9.5 |    9.0 |     7.0 |   172.72 |
-| 16  | 5/02/2025 17:50:56 | Roberto        | Hombre |    6.5 |    7.0 |   7.5 |    6.9 |     5.9 |   166.00 |
+| marca_temporal      | pseudonimo                         | genero | pulgar | índice | mayor | anular | menique |
+|:--------------------|:-----------------------------------|:-------|-------:|-------:|------:|-------:|--------:|
+| 19/08/2025 18:57:20 | Magdalena Yeni Hinojosa Armendáriz | Mujer  |    6.0 |    6.5 |   7.4 |    6.5 |     5.0 |
+| 19/08/2025 18:57:47 | Israel José Carlos Aguilera        | Hombre |    6.5 |    7.0 |   9.0 |    8.0 |     6.6 |
+| 19/08/2025 18:59:23 | René Carreón Villanueva            | Hombre |    6.5 |    6.6 |   7.9 |    7.2 |     5.7 |
+| 19/08/2025 18:59:49 | José Luis Grijalva Anguiano        | Hombre |    6.8 |    7.7 |   8.2 |    7.9 |     6.7 |
+| 19/08/2025 18:59:51 | Samuel Bruno Noriega               | Hombre |    7.0 |    9.0 |  10.0 |    9.0 |     7.5 |
+| 19/08/2025 19:02:03 | Bianca Mauricio Anguiano Zedillo   | Mujer  |    5.7 |    7.6 |   7.2 |    8.1 |     6.4 |
+| 19/08/2025 19:02:07 | José Eduardo Conchita Morales      | Hombre |    6.4 |    7.4 |   8.3 |    7.9 |     6.4 |
+| 19/08/2025 19:03:47 | Dr. Fidel Peres                    | Hombre |    6.7 |    7.2 |   8.2 |    7.4 |     5.7 |
+| 19/08/2025 19:04:17 | Esparta Flórez Marroquín           | Mujer  |    6.4 |    7.0 |   8.2 |    7.5 |     6.3 |
+| 20/08/2024 17:20:02 | Clara Cornelio Quintana            | Mujer  |    6.5 |    7.5 |   7.5 |    6.9 |     5.6 |
+| 20/08/2024 17:20:43 | Ing. Francisca Rosario             | Mujer  |    6.0 |    6.5 |   7.5 |    7.0 |     6.0 |
+| 20/08/2024 17:21:36 | María Teresa Rufino Garibay        | Mujer  |    6.1 |    7.4 |   7.5 |    6.8 |     5.9 |
+| 20/08/2024 17:24:44 | Ing. Graciela Puente               | Mujer  |    5.0 |    5.7 |   6.6 |    5.8 |     5.0 |
+| 20/08/2024 17:26:17 | Héctor Ramón Alarcón               | Hombre |    5.9 |    6.9 |   7.6 |    7.1 |     5.6 |
+| 20/08/2024 17:26:32 | Antonia Andrea Lerma López         | Mujer  |    5.5 |    6.2 |   7.0 |    6.5 |     5.3 |
+| 20/08/2024 17:27:02 | Sr(a). María Elena Villareal       | Mujer  |    6.4 |    7.1 |   8.3 |    7.4 |     5.9 |
+| 20/08/2024 17:27:40 | Bianca Romero                      | Mujer  |    7.0 |    8.0 |   8.2 |    7.2 |     6.0 |
+| 20/08/2024 17:27:42 | Yeni Ybarra Olvera                 | Mujer  |    5.3 |    6.6 |   7.2 |    6.6 |     5.4 |
+| 20/08/2024 17:28:14 | Dr. Marisol Estévez                | Mujer  |    5.0 |    6.0 |   6.5 |    6.9 |     4.9 |
+| 20/08/2024 17:28:29 | Rolando Velásquez                  | Hombre |    6.1 |    7.3 |   7.9 |    7.4 |     5.8 |
+| 20/08/2024 17:30:00 | Aldonza Tapia Macías               | Mujer  |    6.2 |    6.5 |   7.6 |    6.8 |     5.7 |
+| 20/08/2024 17:30:10 | Horacio Villarreal                 | Hombre |    7.2 |    8.3 |   9.2 |    8.5 |     7.0 |
+| 20/08/2024 17:33:34 | Ing. Indira Ybarra                 | Mujer  |    5.6 |    7.1 |   8.1 |    7.4 |     6.2 |
+| 4/02/2025 17:37:28  | Lic. Paola Griego                  | Mujer  |    6.0 |    6.6 |   7.5 |    6.5 |     5.0 |
+| 4/02/2025 17:38:26  | Lorena Abraham Tapia Almanza       | Mujer  |    6.1 |    6.6 |   7.5 |    7.2 |     5.6 |
+| 4/02/2025 17:47:20  | Silvano Berta Amaya Monroy         | Hombre |    6.3 |    7.0 |   8.2 |    7.5 |     6.5 |
+| 4/02/2025 17:54:54  | Irma Pérez                         | Mujer  |    5.3 |    7.2 |   8.1 |    6.9 |     5.3 |
+| 4/02/2025 17:59:12  | Ing. Claudio Alva                  | Hombre |    6.5 |    6.9 |   7.5 |    7.0 |     6.5 |
+| 4/02/2025 18:04:56  | Abril Adriana Castellanos          | Mujer  |    5.5 |    7.0 |   8.0 |    7.5 |     6.0 |
+| 4/02/2025 18:14:50  | Ing. Cornelio Cabán                | Hombre |    6.0 |    6.8 |   7.5 |    7.4 |     6.3 |
+| 4/02/2025 18:16:44  | Dr. Ofelia Bonilla                 | Mujer  |    6.7 |    7.3 |   8.3 |    7.8 |     6.3 |
+| 4/02/2025 18:17:54  | Ignacio Iván Hernández             | Hombre |    7.2 |    7.5 |   8.5 |    7.6 |     6.5 |
+| 4/02/2025 18:18:51  | Soledad Ponce                      | Mujer  |    6.0 |    8.0 |   8.7 |    7.2 |     6.2 |
+| 4/02/2025 18:26:45  | Dr. Francisco Javier Bustamante    | Hombre |    6.6 |    8.2 |   9.0 |    7.6 |     6.2 |
+| 4/02/2025 18:40:42  | Sr(a). Celia Maya                  | Mujer  |    6.0 |    6.3 |   7.2 |    7.0 |     5.5 |
+| 4/02/2025 19:18:42  | Juan Carlos Marrero Frías          | Hombre |    7.5 |    8.5 |   9.5 |    9.0 |     7.0 |
+| 5/02/2025 17:50:56  | Humberto Martínez Olmos            | Hombre |    6.5 |    7.0 |   7.5 |    6.9 |     5.9 |
 
 3.  **Mandato**. **Elige un conjunto e, IMPORTANTE MUY IMPORTANTE,
-    anúncialo en el foro. Si alguien más lo elige antes que tú, deberás
-    cambiarlo**. Aplica la prueba t de Student para muestras
-    independientes, comparando las medidas de los dedos entre géneros de
-    tu conjunto elegido, para determinar si existe diferencia
-    significativa entre las medidas de los dedos de hombres y mujeres.
+    anúncialo en el foro dentro del hilo correspondiente. Si alguien más
+    lo elige antes que tú, deberás cambiarlo**. Aplica la prueba t de
+    Student para muestras independientes, comparando las medidas del
+    dedo entre géneros de tu conjunto elegido, para determinar si existe
+    diferencia significativa entre las medidas entre hombres y mujeres.
     Interpreta y/o resume los resultados con un pequeño párrafo que
     explique si las diferencias encontradas son estadísticamente
     significativas y qué implicaciones podrían tener en el contexto del
     estudio. Además, considera mirar, como referencia, los diagramas de
-    cajas de la práctica anterior [(PA01. Generación de la matriz de
-    distancias)](https://biogeografia-master.github.io/matriz-de-distancias/README.html),
-    y encuentra el diagrama correspondiente al dedo que te tocó
-    analizar. Se supone que el diagrama de caja y la prueba estadística,
-    deben ser consistentes entre sí (una prueba con resultado
-    significativo debería ser consistente con un diagrama de cajas con
-    efecto). No obstante, ten presente que los diagramas de caja
-    analizan la totalidad de los y las participantes, mientras que tú
-    solamente estás analizando seis elementos (tres hombres y tres
-    mujeres).
+    cajas siguientes.
+
+- Todos los dedos de todas las personas, según género.
+
+``` r
+# Diagrama de cajas para todas las medidas de los dedos por género
+library(ggplot2)
+data_long <- reshape2::melt(
+  data,
+  id.vars = c("pseudonimo", "genero"),
+  measure.vars = colnames(data)[4:8],
+  variable.name = "Dedo", value.name = "Medida")
+ggplot(data_long, aes(x = Dedo, y = Medida, fill = genero)) +
+  geom_boxplot() +
+  labs(title = "Diagrama de cajas de medidas de dedos por género",
+       x = "Dedo",
+       y = "Medida (cm)",
+       fill = "Género") +
+  theme_minimal()
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" width="100%" />
+
+- El dedo elegido de cada conjunto:
+
+``` r
+# Paquetes
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(purrr)
+library(ggplot2)
+
+# Asegura que los nombres coincidan exactamente (espacios)
+data <- data %>% mutate(pseudonimo = trimws(pseudonimo))
+
+# Función auxiliar para dividir "A, B, C" -> c("A","B","C")
+split_trim <- function(x) trimws(unlist(str_split(x, ",")))
+
+# Construir el dataset para los 30 paneles:
+# - Para cada Conjunto: tomar sus 3 H + 3 M, pivotear dedos (cols 4:8),
+#   filtrar por el Dedo_elegido de ese conjunto.
+panel_df <- conjuntos_ind %>%
+  mutate(
+    hombres_sel = map(Hombres_elegidos, split_trim),
+    mujeres_sel = map(Mujeres_elegidas, split_trim),
+    seleccion   = map2(hombres_sel, mujeres_sel, ~c(.x, .y))
+  ) %>%
+  select(Conjunto, Dedo_elegido, seleccion) %>%
+  pmap_dfr(function(Conjunto, Dedo_elegido, seleccion) {
+    data %>%
+      filter(pseudonimo %in% seleccion) %>%      # 6 personas
+      mutate(Conjunto = Conjunto) %>%
+      pivot_longer(cols = 4:8, names_to = "Dedo", values_to = "Medida") %>%
+      filter(Dedo == Dedo_elegido)               # solo el dedo de ese conjunto
+  }) %>%
+  mutate(
+    genero = factor(genero, levels = c("Hombre","Mujer")),
+    facet  = sprintf("Conjunto %02d", as.integer(Conjunto))
+  )
+# Diagrama de cajas para todas las medidas de los dedos por género y conjunto
+p <- ggplot(panel_df,
+       aes(x = Dedo, y = Medida, fill = genero,
+           group = interaction(Dedo, genero))) +
+  geom_boxplot(position = position_dodge(width = 0.6),
+               width = 0.55, outlier.shape = 16, outlier.alpha = 0.6,
+               linewidth = 0.3) +
+  facet_wrap(~ facet, nrow = 5, ncol = 6, scales = "free") +
+  scale_x_discrete(drop = TRUE) +
+  labs(title = "Diagrama de cajas por conjunto (3 H + 3 M; dedo elegido por conjunto)",
+       x = "Dedo", y = "Medida (cm)", fill = "Género") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 9),
+    axis.text.x = element_text(size = 8),
+    legend.position = "bottom"
+  ) +
+  theme(panel.spacing.y = grid::unit(2.5, "lines"))
+# Exportar
+jpeg('img/diagrama_cajas_cada_conjunto.jpg', width=3000, height=3000, res=300)
+p
+invisible(dev.off())
+```
+
+<figure>
+<img src="img/diagrama_cajas_cada_conjunto.jpg"
+alt="Diagrama de cajas por conjunto (3 H + 3 M; dedo elegido por conjunto)" />
+<figcaption aria-hidden="true">Diagrama de cajas por conjunto (3 H + 3
+M; dedo elegido por conjunto)</figcaption>
+</figure>
+
+Se supone que el diagrama de caja y la prueba estadística, deben ser
+consistentes entre sí (una prueba con resultado significativo debería
+ser consistente con un diagrama de cajas con efecto). No obstante, ten
+presente que los diagramas de caja analizan la totalidad de los y las
+participantes, mientras que tú solamente estás analizando seis elementos
+(tres hombres y tres mujeres).
 
 Como comenté arriba, usarás muestras balanceadas, es decir, tres hombres
 y tres mujeres para realizar la comparación. Ten en cuenta que, con
@@ -663,6 +791,8 @@ interpretarse con cautela, ya que el poder estadístico es limitado.
 
 ### ¿Cómo se haría en R?
 
+Este bloque de código muestra cómo se haría el ejercicio 2 en R.
+
 ``` r
 # Datos de ejemplo
 hombres_medidas <- c(7.4, 7.1, 7.3)
@@ -677,17 +807,18 @@ el nivel de significancia, entonces se rechaza la hipótesis nula.
 
 # Bonus (opcional)
 
-- ¿Cómo podrían aprovecharse los datos de estatura de para realizar un
-  análisis más completo?
+Responde a estas preguntas.
 
-- ¿Qué tipo de pruebas estadísticas podrían aplicarse para comparar
-  estas variables entre géneros o entre grupos de estudiantes?
+- ¿Cómo podrían aprovecharse los datos para analizar la relación entre
+  los dedos? ¿Podríamos predecir el tamaño de un dedo usando otro u
+  otros? ¿Qué técnicas estadísticas usaríamos?
+
+- ¿Qué tipo de pruebas estadísticas podrían aplicarse para evaluar la
+  homogeneidad de las variables si dividiéramos a los estudiantes en
+  tres o más grupos, por ejemplo, en grupos etarios (por edad)?
 
 - ¿Se podría predecir el género de un estudiante a partir de sus medidas
   biométricas y viceversa? ¿Cómo?
-
-- ¿Qué representación o representaciones gráficas podrían utilizarse
-  para visualizar las diferencias entre géneros o grupos de estudiantes?
 
 ## Referencias
 
