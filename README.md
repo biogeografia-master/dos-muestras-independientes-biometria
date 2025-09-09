@@ -1,5 +1,5 @@
-Prácticas de aula 2 (PA02). Inferencia estadística a partir de dos
-muestras independientes usando datos biométricos<small><br>Biogeografía
+Práctica de aula. Inferencia estadística a partir de dos muestras
+independientes usando datos biométricos<small><br>Biogeografía
 (GEO-131)<br>Universidad Autónoma de Santo Domingo (UASD)</small>
 ================
 El Tali
